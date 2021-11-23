@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id   Int    @id @default(autoincrement())
+  name String
+  sector String
+  market String @db.VarChar(2)
+  stocks Stock[]
+}
+
+model Stock {
+  id   Int    @id @default(autoincrement())
+  company_id Int
+  company Company @relation(fields: [company_id], references: [id])
+  exchange StockExchange
+  ticker String @db.VarChar(6)
+  valuations Valuation[]
+
+  @@unique([ticker, exchange])
+}
+
+model Analyst {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  origin String
+  valuations Valuation[]
+}
+
+model Valuation {
+  id   Int    @id @default(autoincrement())
+  stock_id Int
+  stock Stock @relation(fields: [stock_id], references: [id])
+  value Decimal
+  analyst_id Int
+  analyst Analyst @relation(fields: [analyst_id], references: [id])
+
+}
+
+enum StockExchange {
+  NYSE
+  MOEX
+}
